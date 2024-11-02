@@ -1,7 +1,12 @@
 import uvicorn
+import strawberry
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from config import db
+from strawberry.fastapi import GraphQLRouter
+
+from Graphql.query import Query
+from Graphql.mutation import Mutation
 
 
 @asynccontextmanager
@@ -24,6 +29,11 @@ def init_app():
     def home():
         return "Welcome to home!"
 
+    # add graphql endpoint
+    schema = strawberry.Schema(query=Query, mutation=Mutation)
+    graphql_app = GraphQLRouter(schema)
+
+    apps.include_router(graphql_app, prefix='/graphql')
     
     return apps
 
