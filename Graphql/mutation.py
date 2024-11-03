@@ -1,19 +1,30 @@
 import strawberry
 
 from Service.note import NoteService
-from schema import NoteInput, NoteType
+from Service.authentication import AuthenticationService
+from Middleware.JWTBearer import IsAuthenticated
+from schema import NoteInput, NoteType, LoginInput, LoginType, RegisterInput
 
 @strawberry.type
 class Mutation:
 
-    @strawberry.mutation
+    @strawberry.mutation(permission_classes=[IsAuthenticated])
     async def create_note(self, note_data:NoteInput) -> NoteType:
-        return await NoteService().add_note(note_data)
+        return await NoteService.add_note(note_data)
     
-    @strawberry.mutation
+    @strawberry.mutation(permission_classes=[IsAuthenticated])
     async def update_note(self, id:int, note_data:NoteInput) -> str:
-        return await NoteService().update(id, note_data)
+        return await NoteService.update(id, note_data)
     
-    @strawberry.mutation
+    @strawberry.mutation(permission_classes=[IsAuthenticated])
     async def delete_note(self, id:int) -> str:
-        return await NoteService().delete(id)
+        return await NoteService.delete(id)
+    
+
+    @strawberry.mutation
+    async def login(self, login_data:LoginInput) -> LoginType:
+        return await AuthenticationService.login(login_data)
+
+    @strawberry.mutation
+    async def register(self, user_data:RegisterInput)->str:
+        return await AuthenticationService.register(user_data)
